@@ -15,6 +15,7 @@ num_generations = 500000
 mutation_rate = 0.99
 crossover_rate = 0.0
 elitism = 1
+save_best_individual_every_n_generations = 500
 
 assert elitism < population_size
 
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         FitnessEvaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
-        if i % 100 == 0:
+        if i % save_best_individual_every_n_generations == 0:
             print("\nFittest individual: {}".format(fittest_individual))
             fittest_individual.genotype.save(
                 OUTPUT_DIR / "{:0>6}_{}.png".format(i, uuid.uuid4())
