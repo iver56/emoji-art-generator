@@ -23,6 +23,6 @@ def make_gif(folder, max_num_frames=16):
     gif_output_path = os.path.join(folder, "evolution.gif")
 
     durations = [0.2] * len(frame_paths)
-    durations[-1] = 1.2
+    durations[-1] = 1.5
     images = [imageio.imread(frame_path) for frame_path in frame_paths]
     imageio.mimsave(gif_output_path, images, duration=durations)
