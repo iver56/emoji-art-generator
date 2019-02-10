@@ -1,4 +1,5 @@
 import numpy as np
+from PIL import Image
 from colour import delta_E
 from skimage.color import rgb2lab
 
@@ -23,6 +24,7 @@ class RGBMSEFitnessEvaluator(MSEFitnessEvaluator):
     Significantly faster than the LAB-based methods, but is a poor model of human color
     perception
     """
+
     def __init__(self, target_image_pil):
         self.target_image_np = np.array(target_image_pil)
 
@@ -50,14 +52,21 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
 
     @staticmethod
     def preprocess_pil_image(pil_image):
-        return rgb2lab(np.array(pil_image.resize(LABMSEFitnessEvaluator.DOWNSCALED_SIZE)))
+        return rgb2lab(
+            np.array(
+                pil_image.resize(
+                    LABMSEFitnessEvaluator.DOWNSCALED_SIZE, resample=Image.BILINEAR
+                )
+            )
+        )
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
             fitness_value = 1 / (
                 1
                 + self.calculate_mse(
-                    self.target_image_np_lab, self.preprocess_pil_image(individual.genotype)
+                    self.target_image_np_lab,
+                    self.preprocess_pil_image(individual.genotype),
                 )
             )
             individual.set_fitness(fitness_value)
@@ -76,7 +85,13 @@ class LABDeltaEFitnessEvaluator:
 
     @staticmethod
     def preprocess_pil_image(pil_image):
-        return rgb2lab(np.array(pil_image.resize(LABDeltaEFitnessEvaluator.DOWNSCALED_SIZE)))
+        return rgb2lab(
+            np.array(
+                pil_image.resize(
+                    LABDeltaEFitnessEvaluator.DOWNSCALED_SIZE, resample=Image.BILINEAR
+                )
+            )
+        )
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
@@ -84,7 +99,8 @@ class LABDeltaEFitnessEvaluator:
                 1
                 + np.sum(
                     delta_E(
-                        self.target_image_np_lab, self.preprocess_pil_image(individual.genotype)
+                        self.target_image_np_lab,
+                        self.preprocess_pil_image(individual.genotype),
                     )
                 )
             )
