@@ -134,7 +134,7 @@ class LABDeltaESSIMFitnessEvaluator:
             preprocessed_genotype = self.preprocess_pil_image(individual.genotype)
             fitness_value = 1 / (
                 1 + np.sum(delta_E(self.target_image_np_lab, preprocessed_genotype)) / (self.DOWNSCALED_SIZE[0] * self.DOWNSCALED_SIZE[1])
-            ) + compare_ssim(
+            ) + 0.5 * compare_ssim(
                 self.target_image_np_lab, preprocessed_genotype, multichannel=True
             )
             individual.set_fitness(fitness_value)
