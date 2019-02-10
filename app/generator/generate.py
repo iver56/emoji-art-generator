@@ -59,6 +59,14 @@ class Individual:
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
+        "--target",
+        dest="target",
+        type=str,
+        help="Filename of target image. Should reside in data/target_images/",
+        required=False,
+        default="sunglasses.png",
+    )
+    arg_parser.add_argument(
         "--fitness",
         dest="fitness",
         type=str,
@@ -80,7 +88,7 @@ if __name__ == "__main__":
     experiment_id = "{}_{}".format(
         arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
     )
-    target_image = Image.open(TARGET_IMAGES_DIR / "sunglasses.png").convert("RGB")
+    target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
     print("Found {} emoji images".format(len(emojies)))
 
     fitness_evaluator_class = FITNESS_EVALUATORS[args.fitness]
