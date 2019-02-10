@@ -107,4 +107,4 @@ venv.bak/
 .idea
 
 # Generator output
-data/output/*.png
+data/output/**/*.png

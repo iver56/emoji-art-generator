@@ -2,13 +2,15 @@ import os
 import random
 import uuid
 
+import arrow as arrow
 import numpy as np
 from PIL import Image
+from skimage.color import rgb2lab
 from tqdm import tqdm
 
 from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
-from app.utils.metrics import calculate_mse
+from app.utils.metrics import RGBMSEFitnessEvaluator, LABMSEFitnessEvaluator
 
 population_size = 3
 num_generations = 500000
@@ -52,33 +54,27 @@ class Individual:
         return Individual(genotype=self.genotype.copy(), fitness=self.fitness)
 
 
-class FitnessEvaluator:
-    @staticmethod
-    def evaluate_fitness(individuals):
-        for individual in individuals:
-            mse = calculate_mse(target_image_np, np.array(individual.genotype))
-            fitness = 1 / (1 + mse)
-            individual.set_fitness(fitness)
-
-
 if __name__ == "__main__":
+    experiment_id = '{}_{}'.format(arrow.utcnow().format('YYYY-MM-DDTHHmm'), uuid.uuid4())
     target_image = Image.open(TARGET_IMAGES_DIR / "sunglasses.png").convert('RGB')
-    target_image_np = np.array(target_image)
     print("Found {} emoji images".format(len(emojies)))
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    fitness_evaluator_class = LABMSEFitnessEvaluator
+    fitness_evaluator = fitness_evaluator_class(target_image)
+
+    os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
 
     population = [Individual.get_random_individual() for _ in range(population_size)]
 
     for i in tqdm(range(num_generations)):
         #print("Generation {}".format(i))
-        FitnessEvaluator.evaluate_fitness(population)
+        fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
         if i % save_best_individual_every_n_generations == 0:
             print("\nFittest individual: {}".format(fittest_individual))
             fittest_individual.genotype.save(
-                OUTPUT_DIR / "{:0>6}_{}.png".format(i, uuid.uuid4())
+                OUTPUT_DIR / experiment_id / "{:0>6}_{}.png".format(i, uuid.uuid4())
             )
 
         # Very simple parent selection: Select the 2 best individuals
