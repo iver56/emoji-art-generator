@@ -11,7 +11,7 @@ from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
 from app.utils.argparse_sanity import positive_int
 from app.utils.gif import make_gif
-from app.utils.metrics import FITNESS_EVALUATORS
+from app.utils.fitness import FITNESS_EVALUATORS
 
 population_size = 3
 mutation_rate = 0.9999
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         dest='num_generations',
         type=positive_int,
         required=False,
-        default=500000
+        default=15000
     )
     args = arg_parser.parse_args()
 
