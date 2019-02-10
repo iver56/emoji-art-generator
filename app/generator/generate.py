@@ -13,7 +13,7 @@ from app.utils.argparse_sanity import positive_int
 from app.utils.gif import make_gif
 from app.utils.fitness import FITNESS_EVALUATORS
 
-population_size = 3
+population_size = 4
 mutation_rate = 0.9999
 crossover_rate = 0.0
 elitism = 1
