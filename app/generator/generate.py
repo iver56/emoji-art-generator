@@ -9,12 +9,12 @@ from tqdm import tqdm
 
 from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
+from app.utils.argparse_sanity import positive_int
 from app.utils.gif import make_gif
 from app.utils.metrics import FITNESS_EVALUATORS
 
 population_size = 3
-num_generations = 500000
-mutation_rate = 0.99
+mutation_rate = 0.9999
 crossover_rate = 0.0
 elitism = 1
 
@@ -68,6 +68,14 @@ if __name__ == "__main__":
         required=False,
         default="LABMSE",
     )
+    arg_parser.add_argument(
+        '-g',
+        '--num-generations',
+        dest='num_generations',
+        type=positive_int,
+        required=False,
+        default=500000
+    )
     args = arg_parser.parse_args()
 
     experiment_id = "{}_{}".format(
@@ -85,7 +93,7 @@ if __name__ == "__main__":
 
     last_saved_fitness = float("-inf")
 
-    for i in tqdm(range(num_generations)):
+    for i in tqdm(range(args.num_generations)):
         fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
