@@ -4,16 +4,12 @@ import random
 import uuid
 
 import arrow as arrow
-import numpy as np
 from PIL import Image
-from skimage.color import rgb2lab
 from tqdm import tqdm
 
 from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
 from app.utils.metrics import (
-    RGBMSEFitnessEvaluator,
-    LABMSEFitnessEvaluator,
     FITNESS_EVALUATORS,
 )
 
@@ -22,7 +18,9 @@ num_generations = 500000
 mutation_rate = 0.99
 crossover_rate = 0.0
 elitism = 1
-save_best_individual_every_n_generations = 500
+
+# Minimum relative fitness improvement required over the previous best before image is saved
+save_improvement_threshold = 0.005
 
 assert elitism < population_size
 
@@ -86,12 +84,14 @@ if __name__ == "__main__":
 
     population = [Individual.get_random_individual() for _ in range(population_size)]
 
+    last_saved_fitness = float('-inf')
+
     for i in tqdm(range(num_generations)):
-        # print("Generation {}".format(i))
         fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
-        if i % save_best_individual_every_n_generations == 0:
+        if fittest_individual.fitness >= (1 + save_improvement_threshold) * last_saved_fitness:
+            last_saved_fitness = fittest_individual.fitness
             print("\nFittest individual: {}".format(fittest_individual))
             fittest_individual.genotype.save(
                 OUTPUT_DIR / experiment_id / "{:0>6}_{}.png".format(i, uuid.uuid4())
