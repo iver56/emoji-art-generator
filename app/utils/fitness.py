@@ -41,12 +41,16 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
     """
     Slower than RGBMSEFitnessEvaluator, but closer to human color perception
     """
+
+    # We downscale the image before converting to LAB space to speed up evaluation
+    DOWNSCALED_SIZE = (100, 100)
+
     def __init__(self, target_image_pil):
         self.target_image_np_lab = self.preprocess_pil_image(target_image_pil)
 
     @staticmethod
     def preprocess_pil_image(pil_image):
-        return rgb2lab(np.array(pil_image))
+        return rgb2lab(np.array(pil_image.resize(LABMSEFitnessEvaluator.DOWNSCALED_SIZE)))
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
@@ -63,12 +67,16 @@ class LABDeltaEFitnessEvaluator:
     """
     Slower than LABMSEFitnessEvaluator, but closer to human color perception
     """
+
+    # We downscale the image before converting to LAB space to speed up evaluation
+    DOWNSCALED_SIZE = (100, 100)
+
     def __init__(self, target_image_pil):
         self.target_image_np_lab = self.preprocess_pil_image(target_image_pil)
 
     @staticmethod
     def preprocess_pil_image(pil_image):
-        return rgb2lab(np.array(pil_image))
+        return rgb2lab(np.array(pil_image.resize(LABDeltaEFitnessEvaluator.DOWNSCALED_SIZE)))
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
