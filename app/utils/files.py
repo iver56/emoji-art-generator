@@ -22,3 +22,8 @@ def get_file_paths(image_root_path, file_extensions=("png",)):
         break  # prevent descending into subfolders
 
     return image_file_paths
+
+
+def get_subfolders(folder):
+    """Get paths to all direct subfolders in the given folder"""
+    return [f for f in os.scandir(folder) if f.is_dir()]

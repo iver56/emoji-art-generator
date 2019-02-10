@@ -2,6 +2,7 @@ name: emoji-art
 channels:
   - defaults
 dependencies:
+  - imageio=2.4
   - mkl>=2018,<2019
   - pip>=9.0.1,<=18.1
   - python=3.6.*

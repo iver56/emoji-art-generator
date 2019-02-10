@@ -9,9 +9,8 @@ from tqdm import tqdm
 
 from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
-from app.utils.metrics import (
-    FITNESS_EVALUATORS,
-)
+from app.utils.gif import make_gif
+from app.utils.metrics import FITNESS_EVALUATORS
 
 population_size = 3
 num_generations = 500000
@@ -65,7 +64,7 @@ if __name__ == "__main__":
         type=str,
         choices=FITNESS_EVALUATORS.keys(),
         help="Select fitness evaluator. RGBMSE is fast, but far from human color perception."
-             " LABMSE is slow, but closer to human color perception",
+        " LABMSE is slow, but closer to human color perception",
         required=False,
         default="LABMSE",
     )
@@ -84,13 +83,16 @@ if __name__ == "__main__":
 
     population = [Individual.get_random_individual() for _ in range(population_size)]
 
-    last_saved_fitness = float('-inf')
+    last_saved_fitness = float("-inf")
 
     for i in tqdm(range(num_generations)):
         fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
-        if fittest_individual.fitness >= (1 + save_improvement_threshold) * last_saved_fitness:
+        if (
+            fittest_individual.fitness
+            >= (1 + save_improvement_threshold) * last_saved_fitness
+        ):
             last_saved_fitness = fittest_individual.fitness
             print("\nFittest individual: {}".format(fittest_individual))
             fittest_individual.genotype.save(
