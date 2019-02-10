@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 from colour import delta_E
 from skimage.color import rgb2lab
+from skimage.measure import compare_ssim
 
 
 class MSEFitnessEvaluator:
@@ -107,8 +108,41 @@ class LABDeltaEFitnessEvaluator:
             individual.set_fitness(fitness_value)
 
 
+class LABDeltaESSIMFitnessEvaluator:
+    """
+    Like LABDeltaEFitnessEvaluator, but with Strutured Similarity Index added
+    """
+
+    # We downscale the image before converting to LAB space to speed up evaluation
+    DOWNSCALED_SIZE = (100, 100)
+
+    def __init__(self, target_image_pil):
+        self.target_image_np_lab = self.preprocess_pil_image(target_image_pil)
+
+    @staticmethod
+    def preprocess_pil_image(pil_image):
+        return rgb2lab(
+            np.array(
+                pil_image.resize(
+                    LABDeltaEFitnessEvaluator.DOWNSCALED_SIZE, resample=Image.BILINEAR
+                )
+            )
+        )
+
+    def evaluate_fitness(self, individuals):
+        for individual in individuals:
+            preprocessed_genotype = self.preprocess_pil_image(individual.genotype)
+            fitness_value = 1 / (
+                1 + np.sum(delta_E(self.target_image_np_lab, preprocessed_genotype)) / (self.DOWNSCALED_SIZE[0] * self.DOWNSCALED_SIZE[1])
+            ) + compare_ssim(
+                self.target_image_np_lab, preprocessed_genotype, multichannel=True
+            )
+            individual.set_fitness(fitness_value)
+
+
 FITNESS_EVALUATORS = {
     "RGBMSE": RGBMSEFitnessEvaluator,
+    "LABDeltaESSIM": LABDeltaESSIMFitnessEvaluator,
     "LABMSE": LABMSEFitnessEvaluator,
     "LABDeltaE": LABDeltaEFitnessEvaluator,
 }
