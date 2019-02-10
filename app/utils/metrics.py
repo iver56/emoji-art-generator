@@ -45,3 +45,9 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
                 )
             )
             individual.set_fitness(fitness_value)
+
+
+FITNESS_EVALUATORS = {
+    "RGBMSE": RGBMSEFitnessEvaluator,
+    "LABMSE": LABMSEFitnessEvaluator,
+}

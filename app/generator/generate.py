@@ -1,3 +1,4 @@
+import argparse
 import os
 import random
 import uuid
@@ -10,7 +11,11 @@ from tqdm import tqdm
 
 from app.generator.emoji import emojies
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
-from app.utils.metrics import RGBMSEFitnessEvaluator, LABMSEFitnessEvaluator
+from app.utils.metrics import (
+    RGBMSEFitnessEvaluator,
+    LABMSEFitnessEvaluator,
+    FITNESS_EVALUATORS,
+)
 
 population_size = 3
 num_generations = 500000
@@ -55,11 +60,26 @@ class Individual:
 
 
 if __name__ == "__main__":
-    experiment_id = '{}_{}'.format(arrow.utcnow().format('YYYY-MM-DDTHHmm'), uuid.uuid4())
-    target_image = Image.open(TARGET_IMAGES_DIR / "sunglasses.png").convert('RGB')
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--fitness",
+        dest="fitness",
+        type=str,
+        choices=FITNESS_EVALUATORS.keys(),
+        help="Select fitness evaluator. RGBMSE is fast, but far from human color perception."
+             " LABMSE is slow, but closer to human color perception",
+        required=False,
+        default="LABMSE",
+    )
+    args = arg_parser.parse_args()
+
+    experiment_id = "{}_{}".format(
+        arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
+    )
+    target_image = Image.open(TARGET_IMAGES_DIR / "sunglasses.png").convert("RGB")
     print("Found {} emoji images".format(len(emojies)))
 
-    fitness_evaluator_class = LABMSEFitnessEvaluator
+    fitness_evaluator_class = FITNESS_EVALUATORS[args.fitness]
     fitness_evaluator = fitness_evaluator_class(target_image)
 
     os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
@@ -67,7 +87,7 @@ if __name__ == "__main__":
     population = [Individual.get_random_individual() for _ in range(population_size)]
 
     for i in tqdm(range(num_generations)):
-        #print("Generation {}".format(i))
+        # print("Generation {}".format(i))
         fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
