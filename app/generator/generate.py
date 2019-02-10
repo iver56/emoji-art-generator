@@ -73,7 +73,7 @@ if __name__ == "__main__":
         dest='num_generations',
         type=positive_int,
         required=False,
-        default=15000
+        default=30000
     )
     args = arg_parser.parse_args()
 
