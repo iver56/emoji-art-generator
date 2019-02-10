@@ -42,14 +42,18 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
     Slower than RGBMSEFitnessEvaluator, but closer to human color perception
     """
     def __init__(self, target_image_pil):
-        self.target_image_np_lab = rgb2lab(np.array(target_image_pil))
+        self.target_image_np_lab = self.preprocess_pil_image(target_image_pil)
+
+    @staticmethod
+    def preprocess_pil_image(pil_image):
+        return rgb2lab(np.array(pil_image))
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
             fitness_value = 1 / (
                 1
                 + self.calculate_mse(
-                    self.target_image_np_lab, rgb2lab(np.array(individual.genotype))
+                    self.target_image_np_lab, self.preprocess_pil_image(individual.genotype)
                 )
             )
             individual.set_fitness(fitness_value)
@@ -60,7 +64,11 @@ class LABDeltaEFitnessEvaluator:
     Slower than LABMSEFitnessEvaluator, but closer to human color perception
     """
     def __init__(self, target_image_pil):
-        self.target_image_np_lab = rgb2lab(np.array(target_image_pil))
+        self.target_image_np_lab = self.preprocess_pil_image(target_image_pil)
+
+    @staticmethod
+    def preprocess_pil_image(pil_image):
+        return rgb2lab(np.array(pil_image))
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
@@ -68,7 +76,7 @@ class LABDeltaEFitnessEvaluator:
                 1
                 + np.sum(
                     delta_E(
-                        self.target_image_np_lab, rgb2lab(np.array(individual.genotype))
+                        self.target_image_np_lab, self.preprocess_pil_image(individual.genotype)
                     )
                 )
             )
