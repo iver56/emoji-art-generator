@@ -125,8 +125,8 @@ if __name__ == "__main__":
         for i in range(population_size - elitism):
             random_parents = random.sample(parents, k=2)
             individual = random_parents[0].copy()
-            if random.random() < crossover_rate:
-                individual.apply_crossover(random_parents[1])
+            #if random.random() < crossover_rate:
+            #    individual.apply_crossover(random_parents[1])
 
             if random.random() < mutation_rate:
                 individual.apply_mutation()
