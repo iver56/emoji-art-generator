@@ -1,4 +1,5 @@
 import numpy as np
+from colour import delta_E
 from skimage.color import rgb2lab
 
 
@@ -18,6 +19,10 @@ class MSEFitnessEvaluator:
 
 
 class RGBMSEFitnessEvaluator(MSEFitnessEvaluator):
+    """
+    Significantly faster than the LAB-based methods, but is a poor model of human color
+    perception
+    """
     def __init__(self, target_image_pil):
         self.target_image_np = np.array(target_image_pil)
 
@@ -33,6 +38,9 @@ class RGBMSEFitnessEvaluator(MSEFitnessEvaluator):
 
 
 class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
+    """
+    Slower than RGBMSEFitnessEvaluator, but closer to human color perception
+    """
     def __init__(self, target_image_pil):
         self.target_image_np_lab = rgb2lab(np.array(target_image_pil))
 
@@ -47,7 +55,28 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
             individual.set_fitness(fitness_value)
 
 
+class LABDeltaEFitnessEvaluator:
+    """
+    Slower than LABMSEFitnessEvaluator, but closer to human color perception
+    """
+    def __init__(self, target_image_pil):
+        self.target_image_np_lab = rgb2lab(np.array(target_image_pil))
+
+    def evaluate_fitness(self, individuals):
+        for individual in individuals:
+            fitness_value = 1 / (
+                1
+                + np.sum(
+                    delta_E(
+                        self.target_image_np_lab, rgb2lab(np.array(individual.genotype))
+                    )
+                )
+            )
+            individual.set_fitness(fitness_value)
+
+
 FITNESS_EVALUATORS = {
     "RGBMSE": RGBMSEFitnessEvaluator,
     "LABMSE": LABMSEFitnessEvaluator,
+    "LABDeltaE": LABDeltaEFitnessEvaluator,
 }
