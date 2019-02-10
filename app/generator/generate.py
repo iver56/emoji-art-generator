@@ -63,10 +63,9 @@ if __name__ == "__main__":
         dest="fitness",
         type=str,
         choices=FITNESS_EVALUATORS.keys(),
-        help="Select fitness evaluator. RGBMSE is fast, but far from human color perception."
-        " LABMSE is slow, but closer to human color perception",
+        help="Choose fitness evaluator. See fitness.py for more information.",
         required=False,
-        default="LABMSE",
+        default="LABDeltaE",
     )
     arg_parser.add_argument(
         '-g',
