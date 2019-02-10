@@ -119,3 +119,5 @@ if __name__ == "__main__":
             new_population.append(individual)
 
         population = new_population
+
+    make_gif(OUTPUT_DIR / experiment_id)
