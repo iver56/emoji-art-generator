@@ -15,7 +15,6 @@ from app.utils.gif import make_gif
 from app.utils.fitness import FITNESS_EVALUATORS
 
 mutation_rate = 0.9999
-crossover_rate = 0.0
 elitism = 1
 temperature = 1
 
@@ -112,8 +111,6 @@ if __name__ == "__main__":
         for i in range(args.population_size - elitism):
             random_parents = random.sample(parents, k=2)
             individual = random_parents[0].copy()
-            #if random.random() < crossover_rate:
-            #    individual.apply_crossover(random_parents[1])
 
             if random.random() < mutation_rate:
                 individual.apply_mutation()

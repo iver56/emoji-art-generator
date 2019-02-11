@@ -18,9 +18,6 @@ class Individual:
 
         self.genotype.paste(emoji, box=(x, y), mask=emoji)
 
-    def apply_crossover(self, other_individual):
-        pass
-
     def set_fitness(self, fitness):
         self.fitness = fitness
 
