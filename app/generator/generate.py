@@ -8,6 +8,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from app.generator.emoji import get_emojies
+from app.generator.individual import Individual
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
 from app.utils.argparse_sanity import positive_int
 from app.utils.gif import make_gif
@@ -16,41 +17,10 @@ from app.utils.fitness import FITNESS_EVALUATORS
 mutation_rate = 0.9999
 crossover_rate = 0.0
 elitism = 1
+temperature = 1
 
 # Minimum relative fitness improvement required over the previous best before image is saved
 save_improvement_threshold = 0.005
-
-
-class Individual:
-    def __init__(self, genotype, fitness=None):
-        self.genotype = genotype
-        self.fitness = fitness
-
-    def apply_mutation(self):
-        emoji = random.choice(emojies)
-        x = random.randint(-31, target_image.width - 1)
-        y = random.randint(-31, target_image.height - 1)
-
-        self.genotype.paste(emoji, box=(x, y), mask=emoji)
-
-    def apply_crossover(self, other_individual):
-        pass
-
-    def set_fitness(self, fitness):
-        self.fitness = fitness
-
-    @staticmethod
-    def get_random_individual():
-        candidate_image = Image.new(
-            mode=target_image.mode, size=target_image.size, color=(255, 255, 255)
-        )
-        return Individual(candidate_image)
-
-    def __str__(self):
-        return "Individual(fitness={:.12f})".format(self.fitness)
-
-    def copy(self):
-        return Individual(genotype=self.genotype.copy(), fitness=self.fitness)
 
 
 if __name__ == "__main__":
@@ -104,8 +74,9 @@ if __name__ == "__main__":
     )
     target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
 
-    emojies = get_emojies(args.emoji_size)
-    print("Found {} emoji images".format(len(emojies)))
+    Individual.target_image = target_image
+    Individual.emojies = get_emojies(args.emoji_size)
+    print("Found {} emoji images".format(len(Individual.emojies)))
 
     fitness_evaluator_class = FITNESS_EVALUATORS[args.fitness]
     fitness_evaluator = fitness_evaluator_class(target_image)
