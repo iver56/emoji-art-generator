@@ -13,15 +13,12 @@ from app.utils.argparse_sanity import positive_int
 from app.utils.gif import make_gif
 from app.utils.fitness import FITNESS_EVALUATORS
 
-population_size = 4
 mutation_rate = 0.9999
 crossover_rate = 0.0
 elitism = 1
 
 # Minimum relative fitness improvement required over the previous best before image is saved
 save_improvement_threshold = 0.005
-
-assert elitism < population_size
 
 
 class Individual:
@@ -84,6 +81,14 @@ if __name__ == "__main__":
         default=30000
     )
     arg_parser.add_argument(
+        '-p',
+        '--population-size',
+        dest='population_size',
+        type=positive_int,
+        required=False,
+        default=4
+    )
+    arg_parser.add_argument(
         '--emoji-size',
         dest='emoji_size',
         type=positive_int,
@@ -91,6 +96,8 @@ if __name__ == "__main__":
         default=16
     )
     args = arg_parser.parse_args()
+
+    assert elitism < args.population_size
 
     experiment_id = "{}_{}".format(
         arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
@@ -105,7 +112,7 @@ if __name__ == "__main__":
 
     os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
 
-    population = [Individual.get_random_individual() for _ in range(population_size)]
+    population = [Individual.get_random_individual() for _ in range(args.population_size)]
 
     last_saved_fitness = float("-inf")
 
@@ -131,7 +138,7 @@ if __name__ == "__main__":
             good_parent = ordered_individuals[-(i + 1)].copy()
             new_population.append(good_parent)
 
-        for i in range(population_size - elitism):
+        for i in range(args.population_size - elitism):
             random_parents = random.sample(parents, k=2)
             individual = random_parents[0].copy()
             #if random.random() < crossover_rate:
