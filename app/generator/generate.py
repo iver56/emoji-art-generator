@@ -16,7 +16,6 @@ from app.utils.fitness import FITNESS_EVALUATORS
 
 mutation_rate = 0.9999
 elitism = 1
-temperature = 1
 
 # Minimum relative fitness improvement required over the previous best before image is saved
 save_improvement_threshold = 0.005
