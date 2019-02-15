@@ -38,7 +38,7 @@ if __name__ == "__main__":
         choices=FITNESS_EVALUATORS.keys(),
         help="Choose fitness evaluator. See fitness.py for more information.",
         required=False,
-        default="LABDeltaE",
+        default="LABDeltaESSIM",
     )
     arg_parser.add_argument(
         '-g',
