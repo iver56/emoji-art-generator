@@ -133,10 +133,39 @@ class LABDeltaESSIMFitnessEvaluator:
         for individual in individuals:
             preprocessed_genotype = self.preprocess_pil_image(individual.genotype)
             fitness_value = 1 / (
-                1
-                + np.mean(delta_E(self.target_image_np_lab, preprocessed_genotype))
+                1 + np.mean(delta_E(self.target_image_np_lab, preprocessed_genotype))
             ) + 0.5 * compare_ssim(
                 self.target_image_np_lab, preprocessed_genotype, multichannel=True
+            )
+            individual.set_fitness(fitness_value)
+
+
+class SSIMFitnessEvaluator(MSEFitnessEvaluator):
+    """
+    Structured Similarity Index on RGB images. Faster than the LAB-based fitness evaluators.
+    Cares more about edges and contours than flat areas of smooth color.
+    """
+
+    # We downscale the image before calculating SSIM to speed up evaluation
+    DOWNSCALED_SIZE = (100, 100)
+
+    def __init__(self, target_image_pil):
+        self.target_image_np = self.preprocess_pil_image(target_image_pil)
+
+    @staticmethod
+    def preprocess_pil_image(pil_image):
+        return np.array(
+            pil_image.resize(
+                SSIMFitnessEvaluator.DOWNSCALED_SIZE, resample=Image.BILINEAR
+            )
+        )
+
+    def evaluate_fitness(self, individuals):
+        for individual in individuals:
+            fitness_value = compare_ssim(
+                self.target_image_np,
+                self.preprocess_pil_image(individual.genotype),
+                multichannel=True,
             )
             individual.set_fitness(fitness_value)
 
@@ -146,4 +175,5 @@ FITNESS_EVALUATORS = {
     "LABDeltaESSIM": LABDeltaESSIMFitnessEvaluator,
     "LABMSE": LABMSEFitnessEvaluator,
     "LABDeltaE": LABDeltaEFitnessEvaluator,
+    "SSIM": SSIMFitnessEvaluator,
 }
