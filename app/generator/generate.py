@@ -24,6 +24,14 @@ save_improvement_threshold = 0.005
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
+        "--starting-canvas",
+        dest="starting_canvas",
+        type=str,
+        help="Path to an image to start with. If not specified, a white image will be used.",
+        required=False,
+        default=None,
+    )
+    arg_parser.add_argument(
         "--target",
         dest="target",
         type=str,
@@ -71,6 +79,10 @@ if __name__ == "__main__":
         arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
     )
     target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
+    if args.starting_canvas is not None:
+        starting_canvas = Image.open(args.starting_canvas).convert('RGB')
+        assert starting_canvas.size == target_image.size
+        Individual.set_starting_canvas(starting_canvas)
 
     Individual.target_image = target_image
     Individual.emojies = get_emojies(args.emoji_size)
