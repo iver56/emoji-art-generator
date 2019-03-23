@@ -34,7 +34,7 @@ class RGBMSEFitnessEvaluator(MSEFitnessEvaluator):
             fitness_value = 1 / (
                 1
                 + self.calculate_mse(
-                    self.target_image_np, np.array(individual.genotype)
+                    self.target_image_np, np.array(individual.phenotype)
                 )
             )
             individual.set_fitness(fitness_value)
@@ -67,7 +67,7 @@ class LABMSEFitnessEvaluator(MSEFitnessEvaluator):
                 1
                 + self.calculate_mse(
                     self.target_image_np_lab,
-                    self.preprocess_pil_image(individual.genotype),
+                    self.preprocess_pil_image(individual.phenotype),
                 )
             )
             individual.set_fitness(fitness_value)
@@ -101,7 +101,7 @@ class LABDeltaEFitnessEvaluator:
                 + np.sum(
                     delta_E(
                         self.target_image_np_lab,
-                        self.preprocess_pil_image(individual.genotype),
+                        self.preprocess_pil_image(individual.phenotype),
                     )
                 )
             )
@@ -131,11 +131,11 @@ class LABDeltaESSIMFitnessEvaluator:
 
     def evaluate_fitness(self, individuals):
         for individual in individuals:
-            preprocessed_genotype = self.preprocess_pil_image(individual.genotype)
+            preprocessed_phenotype = self.preprocess_pil_image(individual.phenotype)
             fitness_value = 1 / (
-                1 + np.mean(delta_E(self.target_image_np_lab, preprocessed_genotype))
+                1 + np.mean(delta_E(self.target_image_np_lab, preprocessed_phenotype))
             ) + 0.5 * compare_ssim(
-                self.target_image_np_lab, preprocessed_genotype, multichannel=True
+                self.target_image_np_lab, preprocessed_phenotype, multichannel=True
             )
             individual.set_fitness(fitness_value)
 
@@ -164,7 +164,7 @@ class SSIMFitnessEvaluator(MSEFitnessEvaluator):
         for individual in individuals:
             fitness_value = compare_ssim(
                 self.target_image_np,
-                self.preprocess_pil_image(individual.genotype),
+                self.preprocess_pil_image(individual.phenotype),
                 multichannel=True,
             )
             individual.set_fitness(fitness_value)

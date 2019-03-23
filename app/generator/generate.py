@@ -86,6 +86,7 @@ if __name__ == "__main__":
 
     Individual.target_image = target_image
     Individual.emojies = get_emojies(args.emoji_size)
+    Individual.max_num_emojies = args.num_generations
     print("Found {} emoji images".format(len(Individual.emojies)))
 
     fitness_evaluator_class = FITNESS_EVALUATORS[args.fitness]
@@ -107,7 +108,7 @@ if __name__ == "__main__":
         ):
             last_saved_fitness = fittest_individual.fitness
             print("\nFittest individual: {}".format(fittest_individual))
-            fittest_individual.genotype.save(
+            fittest_individual.save(
                 OUTPUT_DIR / experiment_id / "{:0>6}_{}.png".format(i, uuid.uuid4())
             )
 

@@ -109,3 +109,4 @@ venv.bak/
 # Generator output
 data/output/**/*.png
 data/output/**/*.gif
+data/output/**/*.pkl
