@@ -4,6 +4,8 @@ import joblib
 import numpy as np
 from PIL import Image
 
+from app.generator.emoji import get_emojies
+
 
 class Individual:
     emojies = None
@@ -19,15 +21,17 @@ class Individual:
         """
         Individual.starting_canvas = starting_canvas
 
-    def __init__(self, phenotype, fitness=None, genotype=None, current_emoji_index=0):
+    def __init__(
+        self, phenotype, fitness=None, genotype=None, current_genotype_index=0
+    ):
         self.phenotype = phenotype  # Pillow image
         self.fitness = fitness
         if genotype is None:
             # emoji_index, x, y
-            self.genotype = np.zeros((Individual.max_num_emojies, 3), dtype=np.uint16)
+            self.genotype = np.zeros((Individual.max_num_emojies, 3), dtype=np.int16)
         else:
             self.genotype = genotype
-        self.current_emoji_index = current_emoji_index
+        self.current_genotype_index = current_genotype_index
 
     def apply_mutation(self):
         emoji_index = random.randrange(len(Individual.emojies))
@@ -36,10 +40,10 @@ class Individual:
         y = random.randint(-31, Individual.target_image.height - 1)
 
         self.phenotype.paste(emoji, box=(x, y), mask=emoji)
-        self.genotype[self.current_emoji_index, 0] = emoji_index
-        self.genotype[self.current_emoji_index, 1] = x
-        self.genotype[self.current_emoji_index, 2] = y
-        self.current_emoji_index += 1
+        self.genotype[self.current_genotype_index, 0] = emoji_index
+        self.genotype[self.current_genotype_index, 1] = x
+        self.genotype[self.current_genotype_index, 2] = y
+        self.current_genotype_index += 1
 
     def set_fitness(self, fitness):
         self.fitness = fitness
@@ -64,15 +68,12 @@ class Individual:
             phenotype=self.phenotype.copy(),
             fitness=self.fitness,
             genotype=np.copy(self.genotype),
-            current_emoji_index=self.current_emoji_index
+            current_genotype_index=self.current_genotype_index,
         )
         return individual
 
     def save(self, file_path):
         self.phenotype.save(file_path.with_suffix(".png"))
-        joblib.dump(self.genotype, file_path.with_suffix('.pkl'))
-
-    @staticmethod
-    def generate_individual_from_genotype(self, genotype):
-        individual = Individual.get_random_individual()
-        # TODO
+        joblib.dump(
+            self.genotype[: self.current_genotype_index], file_path.with_suffix(".pkl")
+        )
