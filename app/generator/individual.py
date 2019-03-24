@@ -4,8 +4,6 @@ import joblib
 import numpy as np
 from PIL import Image
 
-from app.generator.emoji import get_emojies
-
 
 class Individual:
     emojies = None

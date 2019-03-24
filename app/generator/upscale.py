@@ -12,7 +12,7 @@ if __name__ == "__main__":
     experiment_folders.sort(key=lambda f: f.name)
     most_recent_experiment_folder = experiment_folders[-1]
 
-    upscaling_factor = 4
+    upscaling_factor = 8
     original_emoji_size = (16, 16)
     original_image_size = (225, 225)
     upscaled_image_size = (
