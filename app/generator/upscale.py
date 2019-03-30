@@ -7,6 +7,21 @@ from app.generator.emoji import get_emojies
 from app.settings import OUTPUT_DIR
 from app.utils.files import get_subfolders, get_file_paths
 
+
+def generate_image_from_scratch(genotype, image_size, emojies):
+
+    image = Image.new(mode="RGB", size=image_size, color=(255, 255, 255))
+    for i in range(len(genotype)):
+        x = genotype[i][1]
+        y = genotype[i][2]
+        emoji_index = genotype[i][0]
+        if x == 0 and y == 0 and emoji_index == 0:
+            continue
+        emoji = emojies[emoji_index]
+        image.paste(emoji, box=(x, y), mask=emoji)
+    return image
+
+
 if __name__ == "__main__":
     experiment_folders = get_subfolders(OUTPUT_DIR)
     experiment_folders.sort(key=lambda f: f.name)
@@ -15,18 +30,17 @@ if __name__ == "__main__":
     upscaling_factor = 8
     original_emoji_size = (16, 16)
     original_image_size = (225, 225)
-    upscaled_image_size = (
-        original_image_size[0] * upscaling_factor,
-        original_image_size[1] * upscaling_factor,
-    )
+
     upscaled_emoji_size = (
         original_emoji_size[0] * upscaling_factor,
         original_emoji_size[1] * upscaling_factor,
     )
+    upscaled_image_size = (
+        original_image_size[0] * upscaling_factor,
+        original_image_size[1] * upscaling_factor,
+    )
 
     upscaled_emojies = get_emojies(size=upscaled_emoji_size[0])
-
-    image = Image.new(mode="RGB", size=upscaled_image_size, color=(255, 255, 255))
 
     stored_individual_paths = get_file_paths(
         most_recent_experiment_folder, file_extensions=("pkl",)
@@ -34,16 +48,10 @@ if __name__ == "__main__":
     stored_individual_paths.sort(key=lambda f: f.name)
     best_stored_individual_path = stored_individual_paths[-1]
     genotype = joblib.load(best_stored_individual_path)
+    genotype[:, 1] *= upscaling_factor  # x
+    genotype[:, 2] *= upscaling_factor  # y
 
-    for i in range(len(genotype)):
-        x = genotype[i][1] * upscaling_factor
-        y = genotype[i][2] * upscaling_factor
-        emoji_index = genotype[i][0]
-        if x == 0 and y == 0 and emoji_index == 0:
-            continue
-        emoji = upscaled_emojies[emoji_index]
-        image.paste(emoji, box=(x, y), mask=emoji)
-
+    image = generate_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
     image.save(
         os.path.join(
             most_recent_experiment_folder,
