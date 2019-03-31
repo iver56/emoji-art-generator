@@ -10,7 +10,7 @@ from app.utils.files import get_subfolders, get_file_paths
 
 def generate_image_from_scratch(genotype, image_size, emojies):
 
-    image = Image.new(mode="RGB", size=image_size, color=(255, 255, 255))
+    image = Image.new(mode="RGBA", size=image_size, color=(255, 255, 255, 0))
     for i in range(len(genotype)):
         x = genotype[i][1]
         y = genotype[i][2]
