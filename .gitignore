@@ -110,3 +110,4 @@ venv.bak/
 data/output/**/*.png
 data/output/**/*.gif
 data/output/**/*.pkl
+data/output/**/*.json
