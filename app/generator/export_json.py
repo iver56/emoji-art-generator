@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 import numpy as np
 import joblib
@@ -52,14 +53,21 @@ if __name__ == "__main__":
             }
         )
 
+    export_folder = os.path.join(most_recent_experiment_folder, "export")
+    os.makedirs(export_folder, exist_ok=True)
+
     used_emojies = {}
     for emoji_id in used_emoji_ids:
         used_emojies[emoji_id] = emoji_paths[emoji_id].name
+        shutil.copy(
+            emoji_paths[emoji_id],
+            os.path.join(export_folder, '{}.png'.format(emoji_id)),
+        )
 
     data = {"emojies": used_emojies, "tiles": tiles}
+
     json_file_path = os.path.join(
-        most_recent_experiment_folder,
-        best_stored_individual_path.stem + ".json",
+        export_folder, best_stored_individual_path.stem + ".json"
     )
     with open(json_file_path, "w") as out_file:
         json.dump(data, out_file)
