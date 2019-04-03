@@ -61,7 +61,7 @@ if __name__ == "__main__":
         used_emojies[emoji_id] = emoji_paths[emoji_id].name
         shutil.copy(
             emoji_paths[emoji_id],
-            os.path.join(export_folder, '{}.png'.format(emoji_id)),
+            os.path.join(export_folder, emoji_paths[emoji_id].name),
         )
 
     data = {"emojies": used_emojies, "tiles": tiles}
