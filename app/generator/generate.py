@@ -1,6 +1,7 @@
 import argparse
 import os
 import random
+import shutil
 import uuid
 
 import arrow as arrow
@@ -49,27 +50,23 @@ if __name__ == "__main__":
         default="LABDeltaESSIM",
     )
     arg_parser.add_argument(
-        '-g',
-        '--num-generations',
-        dest='num_generations',
+        "-g",
+        "--num-generations",
+        dest="num_generations",
         type=positive_int,
         required=False,
-        default=30000
+        default=30000,
     )
     arg_parser.add_argument(
-        '-p',
-        '--population-size',
-        dest='population_size',
+        "-p",
+        "--population-size",
+        dest="population_size",
         type=positive_int,
         required=False,
-        default=4
+        default=4,
     )
     arg_parser.add_argument(
-        '--emoji-size',
-        dest='emoji_size',
-        type=positive_int,
-        required=False,
-        default=16
+        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
     )
     args = arg_parser.parse_args()
 
@@ -78,9 +75,10 @@ if __name__ == "__main__":
     experiment_id = "{}_{}".format(
         arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
     )
+
     target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
     if args.starting_canvas is not None:
-        starting_canvas = Image.open(args.starting_canvas).convert('RGB')
+        starting_canvas = Image.open(args.starting_canvas).convert("RGB")
         assert starting_canvas.size == target_image.size
         Individual.set_starting_canvas(starting_canvas)
 
@@ -94,7 +92,14 @@ if __name__ == "__main__":
 
     os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
 
-    population = [Individual.get_random_individual() for _ in range(args.population_size)]
+    shutil.copy(
+        TARGET_IMAGES_DIR / args.target,
+        os.path.join(OUTPUT_DIR / experiment_id, "target.png"),
+    )
+
+    population = [
+        Individual.get_random_individual() for _ in range(args.population_size)
+    ]
 
     last_saved_fitness = float("-inf")
 
