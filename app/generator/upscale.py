@@ -3,6 +3,7 @@ import os
 
 import joblib
 from PIL import Image
+from tqdm import tqdm
 
 from app.generator.emoji import get_emojies
 from app.settings import OUTPUT_DIR, TARGET_IMAGES_DIR
@@ -15,7 +16,7 @@ def generate_alpha_image_from_scratch(genotype, image_size, emojies):
     Slower than generate_image_from_scratch, but has transparent background
     """
     image = Image.new(mode="RGBA", size=image_size, color=(255, 255, 255, 0))
-    for i in range(len(genotype)):
+    for i in tqdm(range(len(genotype))):
         x = genotype[i][1]
         y = genotype[i][2]
         emoji_index = genotype[i][0]
@@ -31,15 +32,16 @@ def generate_alpha_image_from_scratch(genotype, image_size, emojies):
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "--target",
-        dest="target",
-        type=str,
-        help="Filename of target image. Should reside in data/target_images/",
-        required=False,
-        default="sunglasses.png",
+        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
     )
     arg_parser.add_argument(
-        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
+        "--experiment",
+        dest="experiment",
+        type=str,
+        required=False,
+        default=None,
+        help="Refers to the experiment folder. If not provided, the most recent experiment is"
+             " used.",
     )
     arg_parser.add_argument(
         "--upscaling-factor",
@@ -50,11 +52,14 @@ if __name__ == "__main__":
     )
     args = arg_parser.parse_args()
 
-    target_image = Image.open(TARGET_IMAGES_DIR / args.target)
+    if args.experiment is None:
+        experiment_folders = get_subfolders(OUTPUT_DIR)
+        experiment_folders.sort(key=lambda f: f.name)
+        selected_experiment_folder = experiment_folders[-1]
+    else:
+        selected_experiment_folder = OUTPUT_DIR / args.experiment
 
-    experiment_folders = get_subfolders(OUTPUT_DIR)
-    experiment_folders.sort(key=lambda f: f.name)
-    most_recent_experiment_folder = experiment_folders[-1]
+    target_image = Image.open(os.path.join(selected_experiment_folder, "target.png"))
 
     upscaling_factor = args.upscaling_factor
     original_emoji_size = (args.emoji_size, args.emoji_size)
@@ -72,7 +77,7 @@ if __name__ == "__main__":
     upscaled_emojies = get_emojies(size=upscaled_emoji_size[0])
 
     stored_individual_paths = get_file_paths(
-        most_recent_experiment_folder, file_extensions=("pkl",)
+        selected_experiment_folder, file_extensions=("pkl",)
     )
     stored_individual_paths.sort(key=lambda f: f.name)
     best_stored_individual_path = stored_individual_paths[-1]
@@ -85,7 +90,7 @@ if __name__ == "__main__":
     )
     image.save(
         os.path.join(
-            most_recent_experiment_folder,
+            selected_experiment_folder,
             best_stored_individual_path.stem + "_upscaled.png",
         )
     )
