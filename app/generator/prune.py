@@ -40,27 +40,29 @@ if __name__ == "__main__":
 
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "--target",
-        dest="target",
-        type=str,
-        help="Filename of target image. Should reside in data/target_images/",
-        required=False,
-        default="sunglasses.png",
+        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
     )
     arg_parser.add_argument(
-        '--emoji-size',
-        dest='emoji_size',
-        type=positive_int,
+        "--experiment",
+        dest="experiment",
+        type=str,
         required=False,
-        default=16
+        default=None,
+        help="Refers to the experiment folder. If not provided, the most recent experiment is"
+             " used.",
     )
     args = arg_parser.parse_args()
 
-    experiment_folders = get_subfolders(OUTPUT_DIR)
-    experiment_folders.sort(key=lambda f: f.name)
-    most_recent_experiment_folder = experiment_folders[-1]
+    if args.experiment is None:
+        experiment_folders = get_subfolders(OUTPUT_DIR)
+        experiment_folders.sort(key=lambda f: f.name)
+        selected_experiment_folder = experiment_folders[-1]
+    else:
+        selected_experiment_folder = OUTPUT_DIR / args.experiment
 
-    target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
+    target_image = Image.open(
+        os.path.join(selected_experiment_folder, "target.png")
+    ).convert("RGB")
 
     upscaling_factor = 1
     original_emoji_size = (args.emoji_size, args.emoji_size)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     )
 
     stored_individual_paths = get_file_paths(
-        most_recent_experiment_folder, file_extensions=("pkl",)
+        selected_experiment_folder, file_extensions=("pkl",)
     )
     stored_individual_paths.sort(key=lambda f: f.name)
     best_stored_individual_path = stored_individual_paths[-1]
@@ -113,15 +115,13 @@ if __name__ == "__main__":
     joblib.dump(
         current_genotype,
         os.path.join(
-            most_recent_experiment_folder,
-            best_stored_individual_path.stem + "_pruned.pkl",
+            selected_experiment_folder, best_stored_individual_path.stem + "_pruned.pkl"
         ),
     )
 
     image.save(
         os.path.join(
-            most_recent_experiment_folder,
-            best_stored_individual_path.stem + "_pruned.png",
+            selected_experiment_folder, best_stored_individual_path.stem + "_pruned.png"
         )
     )
     print("Done")
