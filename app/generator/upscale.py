@@ -8,8 +8,11 @@ from app.settings import OUTPUT_DIR
 from app.utils.files import get_subfolders, get_file_paths
 
 
-def generate_image_from_scratch(genotype, image_size, emojies):
 
+def generate_alpha_image_from_scratch(genotype, image_size, emojies):
+    """
+    Slower than generate_image_from_scratch, but has transparent background
+    """
     image = Image.new(mode="RGBA", size=image_size, color=(255, 255, 255, 0))
     for i in range(len(genotype)):
         x = genotype[i][1]
@@ -18,7 +21,9 @@ def generate_image_from_scratch(genotype, image_size, emojies):
         if x == 0 and y == 0 and emoji_index == 0:
             continue
         emoji = emojies[emoji_index]
-        image.paste(emoji, box=(x, y), mask=emoji)
+        canvas = Image.new(mode="RGBA", size=image_size, color=(255, 255, 255, 0))
+        canvas.paste(emoji, box=(x, y), mask=emoji)
+        image = Image.alpha_composite(image, canvas)
     return image
 
 
@@ -51,7 +56,7 @@ if __name__ == "__main__":
     genotype[:, 1] *= upscaling_factor  # x
     genotype[:, 2] *= upscaling_factor  # y
 
-    image = generate_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
+    image = generate_alpha_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
     image.save(
         os.path.join(
             most_recent_experiment_folder,

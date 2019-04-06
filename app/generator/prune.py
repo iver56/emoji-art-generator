@@ -8,11 +8,30 @@ from tqdm import tqdm
 
 from app.generator.emoji import get_emojies
 from app.generator.individual import Individual
-from app.generator.upscale import generate_image_from_scratch
 from app.settings import OUTPUT_DIR, TARGET_IMAGES_DIR
 from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
 from app.utils.fitness import LABDeltaESSIMFitnessEvaluator
+
+
+def generate_image_from_scratch(genotype, image_size, emojies):
+    """
+    :param genotype:
+    :param image_size:
+    :param emojies:
+    :return:
+    """
+    image = Image.new(mode="RGB", size=image_size, color=(255, 255, 255, 0))
+    for i in range(len(genotype)):
+        x = genotype[i][1]
+        y = genotype[i][2]
+        emoji_index = genotype[i][0]
+        if x == 0 and y == 0 and emoji_index == 0:
+            continue
+        emoji = emojies[emoji_index]
+        image.paste(emoji, box=(x, y), mask=emoji)
+    return image
+
 
 if __name__ == "__main__":
     """
