@@ -3,11 +3,10 @@ import json
 import os
 import shutil
 
-import numpy as np
 import joblib
+import numpy as np
 from PIL import Image
 
-from app.generator.emoji import get_emojies
 from app.settings import OUTPUT_DIR, EMOJI_DIR
 from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
