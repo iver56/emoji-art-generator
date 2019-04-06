@@ -1,12 +1,13 @@
+import argparse
 import os
 
 import joblib
 from PIL import Image
 
 from app.generator.emoji import get_emojies
-from app.settings import OUTPUT_DIR
+from app.settings import OUTPUT_DIR, TARGET_IMAGES_DIR
+from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
-
 
 
 def generate_alpha_image_from_scratch(genotype, image_size, emojies):
@@ -28,13 +29,36 @@ def generate_alpha_image_from_scratch(genotype, image_size, emojies):
 
 
 if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--target",
+        dest="target",
+        type=str,
+        help="Filename of target image. Should reside in data/target_images/",
+        required=False,
+        default="sunglasses.png",
+    )
+    arg_parser.add_argument(
+        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
+    )
+    arg_parser.add_argument(
+        "--upscaling-factor",
+        dest="upscaling_factor",
+        type=positive_int,
+        required=False,
+        default=8,
+    )
+    args = arg_parser.parse_args()
+
+    target_image = Image.open(TARGET_IMAGES_DIR / args.target)
+
     experiment_folders = get_subfolders(OUTPUT_DIR)
     experiment_folders.sort(key=lambda f: f.name)
     most_recent_experiment_folder = experiment_folders[-1]
 
-    upscaling_factor = 8
-    original_emoji_size = (16, 16)
-    original_image_size = (225, 225)
+    upscaling_factor = args.upscaling_factor
+    original_emoji_size = (args.emoji_size, args.emoji_size)
+    original_image_size = target_image.size
 
     upscaled_emoji_size = (
         original_emoji_size[0] * upscaling_factor,
@@ -56,7 +80,9 @@ if __name__ == "__main__":
     genotype[:, 1] *= upscaling_factor  # x
     genotype[:, 2] *= upscaling_factor  # y
 
-    image = generate_alpha_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
+    image = generate_alpha_image_from_scratch(
+        genotype, upscaled_image_size, upscaled_emojies
+    )
     image.save(
         os.path.join(
             most_recent_experiment_folder,
