@@ -47,7 +47,9 @@ if __name__ == "__main__":
 
     fitness_evaluator = LABDeltaESSIMFitnessEvaluator(target_image)
 
-    image = generate_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
+    image = generate_image_from_scratch(
+        genotype, upscaled_image_size, upscaled_emojies
+    ).convert("RGB")
     base_individual = Individual(image)
     fitness_evaluator.evaluate_fitness([base_individual])
     current_fitness = base_individual.fitness
@@ -59,7 +61,7 @@ if __name__ == "__main__":
         candidate_genotype[i, :] = 0  # Remove this emoji
         image = generate_image_from_scratch(
             candidate_genotype, upscaled_image_size, upscaled_emojies
-        )
+        ).convert("RGB")
         candidate_individual = Individual(image)
         fitness_evaluator.evaluate_fitness([candidate_individual])
         if candidate_individual.fitness >= current_fitness:
