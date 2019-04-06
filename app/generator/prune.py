@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import joblib
@@ -9,6 +10,7 @@ from app.generator.emoji import get_emojies
 from app.generator.individual import Individual
 from app.generator.upscale import generate_image_from_scratch
 from app.settings import OUTPUT_DIR, TARGET_IMAGES_DIR
+from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
 from app.utils.fitness import LABDeltaESSIMFitnessEvaluator
 
@@ -17,16 +19,33 @@ if __name__ == "__main__":
     For each emoji, try to remove it and see if that removal improves the fitness.
     """
 
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--target",
+        dest="target",
+        type=str,
+        help="Filename of target image. Should reside in data/target_images/",
+        required=False,
+        default="sunglasses.png",
+    )
+    arg_parser.add_argument(
+        '--emoji-size',
+        dest='emoji_size',
+        type=positive_int,
+        required=False,
+        default=16
+    )
+    args = arg_parser.parse_args()
+
     experiment_folders = get_subfolders(OUTPUT_DIR)
     experiment_folders.sort(key=lambda f: f.name)
     most_recent_experiment_folder = experiment_folders[-1]
 
-    target_image_filename = "sunglasses.png"
-    target_image = Image.open(TARGET_IMAGES_DIR / target_image_filename).convert("RGB")
+    target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
 
     upscaling_factor = 1
-    original_emoji_size = (16, 16)
-    original_image_size = (225, 225)
+    original_emoji_size = (args.emoji_size, args.emoji_size)
+    original_image_size = target_image.size
     upscaled_image_size = (
         original_image_size[0] * upscaling_factor,
         original_image_size[1] * upscaling_factor,
