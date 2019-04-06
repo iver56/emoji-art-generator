@@ -1,22 +1,53 @@
+import argparse
 import json
 import os
 import shutil
 
 import numpy as np
 import joblib
+from PIL import Image
 
 from app.generator.emoji import get_emojies
 from app.settings import OUTPUT_DIR, EMOJI_DIR
+from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
 
 if __name__ == "__main__":
-    experiment_folders = get_subfolders(OUTPUT_DIR)
-    experiment_folders.sort(key=lambda f: f.name)
-    most_recent_experiment_folder = experiment_folders[-1]
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
+    )
+    arg_parser.add_argument(
+        "--experiment",
+        dest="experiment",
+        type=str,
+        required=False,
+        default=None,
+        help="Refers to the experiment folder. If not provided, the most recent experiment is"
+             " used.",
+    )
+    arg_parser.add_argument(
+        "--upscaling-factor",
+        dest="upscaling_factor",
+        type=positive_int,
+        required=False,
+        default=8,
+    )
+    args = arg_parser.parse_args()
 
-    upscaling_factor = 6
-    original_emoji_size = (16, 16)
-    original_image_size = (225, 225)
+    upscaling_factor = args.upscaling_factor
+    original_emoji_size = (args.emoji_size, args.emoji_size)
+
+    if args.experiment is None:
+        experiment_folders = get_subfolders(OUTPUT_DIR)
+        experiment_folders.sort(key=lambda f: f.name)
+        selected_experiment_folder = experiment_folders[-1]
+    else:
+        selected_experiment_folder = OUTPUT_DIR / args.experiment
+
+    target_image = Image.open(os.path.join(selected_experiment_folder, "target.png"))
+    
+    original_image_size = target_image.size
 
     upscaled_emoji_size = (
         original_emoji_size[0] * upscaling_factor,
@@ -30,7 +61,7 @@ if __name__ == "__main__":
     emoji_paths = get_file_paths(EMOJI_DIR)
 
     stored_individual_paths = get_file_paths(
-        most_recent_experiment_folder, file_extensions=("pkl",)
+        selected_experiment_folder, file_extensions=("pkl",)
     )
     stored_individual_paths.sort(key=lambda f: f.name)
     best_stored_individual_path = stored_individual_paths[-1]
@@ -53,7 +84,7 @@ if __name__ == "__main__":
             }
         )
 
-    export_folder = os.path.join(most_recent_experiment_folder, "export")
+    export_folder = os.path.join(selected_experiment_folder, "export")
     os.makedirs(export_folder, exist_ok=True)
 
     used_emojies = {}
