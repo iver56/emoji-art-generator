@@ -66,19 +66,48 @@ if __name__ == "__main__":
         default=4,
     )
     arg_parser.add_argument(
+        "--width",
+        dest="width",
+        type=int,
+        required=False,
+        default=-1,
+        help="If specified, resize the target image (and the starting canvas) to this width."
+        " Otherwise, keep the original width.",
+    )
+    arg_parser.add_argument(
+        "--height",
+        dest="height",
+        type=int,
+        required=False,
+        default=-1,
+        help="If specified, resize the target image (and the starting canvas) to this height."
+        " Otherwise, keep the original height.",
+    )
+    arg_parser.add_argument(
         "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
     )
     args = arg_parser.parse_args()
 
     assert elitism < args.population_size
 
-    experiment_id = "{}_{}".format(
-        arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4()
-    )
+    experiment_id = "{}_{}".format(arrow.utcnow().format("YYYY-MM-DDTHHmm"), uuid.uuid4())
 
-    target_image = Image.open(TARGET_IMAGES_DIR / args.target).convert("RGB")
+    target_image = Image.open(TARGET_IMAGES_DIR / args.target)
+    should_resize = args.width >= 1 and args.height >= 1
+    if should_resize:
+        print("Resizing the target image to ({}, {})".format(args.width, args.height))
+        target_image = target_image.resize((args.width, args.height), Image.LANCZOS)
+
+    os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
+
+    target_image.save(os.path.join(OUTPUT_DIR / experiment_id, "target.png"))
+
+    target_image = target_image.convert("RGB")
+
     if args.starting_canvas is not None:
         starting_canvas = Image.open(args.starting_canvas).convert("RGB")
+        if should_resize:
+            starting_canvas = starting_canvas.resize((args.width, args.height), Image.LANCZOS)
         assert starting_canvas.size == target_image.size
         Individual.set_starting_canvas(starting_canvas)
 
@@ -90,16 +119,9 @@ if __name__ == "__main__":
     fitness_evaluator_class = FITNESS_EVALUATORS[args.fitness]
     fitness_evaluator = fitness_evaluator_class(target_image)
 
-    os.makedirs(OUTPUT_DIR / experiment_id, exist_ok=True)
 
-    shutil.copy(
-        TARGET_IMAGES_DIR / args.target,
-        os.path.join(OUTPUT_DIR / experiment_id, "target.png"),
-    )
 
-    population = [
-        Individual.get_random_individual() for _ in range(args.population_size)
-    ]
+    population = [Individual.get_random_individual() for _ in range(args.population_size)]
 
     last_saved_fitness = float("-inf")
 
@@ -107,10 +129,7 @@ if __name__ == "__main__":
         fitness_evaluator.evaluate_fitness(population)
         ordered_individuals = sorted(population, key=lambda i: i.fitness)
         fittest_individual = ordered_individuals[-1]
-        if (
-            fittest_individual.fitness
-            >= (1 + save_improvement_threshold) * last_saved_fitness
-        ):
+        if fittest_individual.fitness >= (1 + save_improvement_threshold) * last_saved_fitness:
             last_saved_fitness = fittest_individual.fitness
             print("\nFittest individual: {}".format(fittest_individual))
             fittest_individual.save(
