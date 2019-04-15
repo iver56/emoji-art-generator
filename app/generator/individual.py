@@ -19,9 +19,7 @@ class Individual:
         """
         Individual.starting_canvas = starting_canvas
 
-    def __init__(
-        self, phenotype, fitness=None, genotype=None, current_genotype_index=0
-    ):
+    def __init__(self, phenotype, fitness=None, genotype=None, current_genotype_index=0):
         self.phenotype = phenotype  # Pillow image
         self.fitness = fitness
         if genotype is None:
@@ -34,8 +32,12 @@ class Individual:
     def apply_mutation(self):
         emoji_index = random.randrange(len(Individual.emojies))
         emoji = Individual.emojies[emoji_index]
-        x = random.randint(-31, Individual.target_image.width - 1)
-        y = random.randint(-31, Individual.target_image.height - 1)
+        x = random.randint(
+            -emoji.size[0] // 2, Individual.target_image.width - emoji.size[0] // 2
+        )
+        y = random.randint(
+            -emoji.size[1] // 2, Individual.target_image.height - emoji.size[1] // 2
+        )
 
         self.phenotype.paste(emoji, box=(x, y), mask=emoji)
         self.genotype[self.current_genotype_index, 0] = emoji_index
@@ -72,6 +74,4 @@ class Individual:
 
     def save(self, file_path):
         self.phenotype.save(file_path.with_suffix(".png"))
-        joblib.dump(
-            self.genotype[: self.current_genotype_index], file_path.with_suffix(".pkl")
-        )
+        joblib.dump(self.genotype[: self.current_genotype_index], file_path.with_suffix(".pkl"))
