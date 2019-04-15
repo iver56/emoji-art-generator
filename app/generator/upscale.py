@@ -32,7 +32,12 @@ def generate_alpha_image_from_scratch(genotype, image_size, emojies):
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "--emoji-size", dest="emoji_size", type=positive_int, required=False, default=16
+        "--emoji-size",
+        dest="emoji_size",
+        type=positive_int,
+        required=False,
+        default=16,
+        help="Original emoji size (i.e. not the upscaled size)",
     )
     arg_parser.add_argument(
         "--experiment",
@@ -41,7 +46,7 @@ if __name__ == "__main__":
         required=False,
         default=None,
         help="Refers to the experiment folder. If not provided, the most recent experiment is"
-             " used.",
+        " used.",
     )
     arg_parser.add_argument(
         "--upscaling-factor",
@@ -85,13 +90,10 @@ if __name__ == "__main__":
     genotype[:, 1] *= upscaling_factor  # x
     genotype[:, 2] *= upscaling_factor  # y
 
-    image = generate_alpha_image_from_scratch(
-        genotype, upscaled_image_size, upscaled_emojies
-    )
+    image = generate_alpha_image_from_scratch(genotype, upscaled_image_size, upscaled_emojies)
     image.save(
         os.path.join(
-            selected_experiment_folder,
-            best_stored_individual_path.stem + "_upscaled.png",
+            selected_experiment_folder, best_stored_individual_path.stem + "_upscaled.png"
         )
     )
     print("Done")
