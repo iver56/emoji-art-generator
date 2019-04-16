@@ -29,41 +29,7 @@ def generate_alpha_image_from_scratch(genotype, image_size, emojies):
     return image
 
 
-if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument(
-        "--emoji-size",
-        dest="emoji_size",
-        type=positive_int,
-        required=False,
-        default=16,
-        help="Original emoji size (i.e. not the upscaled size)",
-    )
-    arg_parser.add_argument(
-        "--experiment",
-        dest="experiment",
-        type=str,
-        required=False,
-        default=None,
-        help="Refers to the experiment folder. If not provided, the most recent experiment is"
-        " used.",
-    )
-    arg_parser.add_argument(
-        "--upscaling-factor",
-        dest="upscaling_factor",
-        type=positive_int,
-        required=False,
-        default=8,
-    )
-    args = arg_parser.parse_args()
-
-    if args.experiment is None:
-        experiment_folders = get_subfolders(OUTPUT_DIR)
-        experiment_folders.sort(key=lambda f: f.name)
-        selected_experiment_folder = experiment_folders[-1]
-    else:
-        selected_experiment_folder = OUTPUT_DIR / args.experiment
-
+def upscale(args, selected_experiment_folder):
     target_image = Image.open(os.path.join(selected_experiment_folder, "target.png"))
 
     upscaling_factor = args.upscaling_factor
@@ -97,3 +63,41 @@ if __name__ == "__main__":
         )
     )
     print("Done")
+
+
+if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--emoji-size",
+        dest="emoji_size",
+        type=positive_int,
+        required=False,
+        default=16,
+        help="Original emoji size (i.e. not the upscaled size)",
+    )
+    arg_parser.add_argument(
+        "--experiment",
+        dest="experiment",
+        type=str,
+        required=False,
+        default=None,
+        help="Refers to the experiment folder. If not provided, the upscaling procedure will be"
+             "applied to all experiment folders.",
+    )
+    arg_parser.add_argument(
+        "--upscaling-factor",
+        dest="upscaling_factor",
+        type=positive_int,
+        required=False,
+        default=8,
+    )
+    args = arg_parser.parse_args()
+
+    if args.experiment is None:
+        experiment_folders = get_subfolders(OUTPUT_DIR)
+        for experiment_folder in experiment_folders:
+            print(experiment_folder)
+            upscale(args, experiment_folder)
+    else:
+        selected_experiment_folder = OUTPUT_DIR / args.experiment
+        upscale(args, selected_experiment_folder)
