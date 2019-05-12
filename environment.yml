@@ -6,7 +6,7 @@ dependencies:
   - joblib=0.13
   - mkl>=2018,<2019
   - pip>=9.0.1,<=18.1
-  - python=3.6.*
+  - python=3.6.6
   - scikit-image=0.14
   - scipy=1
   - pip:
