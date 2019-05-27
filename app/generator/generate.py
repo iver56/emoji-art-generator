@@ -38,7 +38,7 @@ if __name__ == "__main__":
         type=str,
         help="Filename of target image. Should reside in data/target_images/",
         required=False,
-        default="sunglasses.png",
+        default="sunglasses2.png",
     )
     arg_parser.add_argument(
         "--fitness",
