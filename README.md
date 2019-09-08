@@ -15,6 +15,8 @@
 
 # Usage
 
+Prepare a target image (store it in `data/target_images/`) and a set of emojies/tiles (store them in `data/emoji/`). Then run the following command:
+
 `python -m app.generator.generate`
 
 ```
