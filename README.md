@@ -15,4 +15,31 @@
 
 # Usage
 
-* `python -m app.generator.generate`
+`python -m app.generator.generate`
+
+```
+usage: generate.py [-h] [--starting-canvas STARTING_CANVAS] [--target TARGET]
+                   [--fitness {RGBMSE,LABDeltaESSIM,LABMSE,LABDeltaE,SSIM}]
+                   [-g NUM_GENERATIONS] [-p POPULATION_SIZE] [--width WIDTH]
+                   [--height HEIGHT] [--emoji-size EMOJI_SIZE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --starting-canvas STARTING_CANVAS
+                        Path to an image to start with. If not specified, a
+                        white image will be used.
+  --target TARGET       Filename of target image. Should reside in
+                        data/target_images/
+  --fitness {RGBMSE,LABDeltaESSIM,LABMSE,LABDeltaE,SSIM}
+                        Choose fitness evaluator. See fitness.py for more
+                        information.
+  -g NUM_GENERATIONS, --num-generations NUM_GENERATIONS
+  -p POPULATION_SIZE, --population-size POPULATION_SIZE
+  --width WIDTH         If specified, resize the target image (and the
+                        starting canvas) to this width. Otherwise, keep the
+                        original width.
+  --height HEIGHT       If specified, resize the target image (and the
+                        starting canvas) to this height. Otherwise, keep the
+                        original height.
+  --emoji-size EMOJI_SIZE
+```
