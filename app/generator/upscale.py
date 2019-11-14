@@ -6,7 +6,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from app.generator.emoji import get_emojies
-from app.settings import OUTPUT_DIR, TARGET_IMAGES_DIR
+from app.settings import OUTPUT_DIR
 from app.utils.argparse_sanity import positive_int
 from app.utils.files import get_subfolders, get_file_paths
 

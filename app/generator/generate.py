@@ -1,7 +1,6 @@
 import argparse
 import os
 import random
-import shutil
 import uuid
 
 import arrow as arrow
@@ -12,8 +11,8 @@ from app.generator.emoji import get_emojies
 from app.generator.individual import Individual
 from app.settings import TARGET_IMAGES_DIR, OUTPUT_DIR
 from app.utils.argparse_sanity import positive_int
-from app.utils.gif import make_gif
 from app.utils.fitness import FITNESS_EVALUATORS
+from app.utils.gif import make_gif
 
 mutation_rate = 0.9999
 elitism = 1

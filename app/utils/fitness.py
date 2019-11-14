@@ -16,7 +16,6 @@ class MSEFitnessEvaluator:
         :return: mse
         """
         err = np.sum((image_a - image_b) ** 2)
-        # err /= float(image_a.shape[0] * image_a.shape[1])
         return err
 
 
