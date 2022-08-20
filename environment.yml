@@ -10,7 +10,7 @@ dependencies:
   - scikit-image=0.14
   - scipy=1
   - pip:
-      - arrow==0.12.1
+      - arrow==0.15
       - black
       - colorama==0.3.9
       - colour-science==0.3.11
